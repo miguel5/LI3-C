@@ -5,6 +5,7 @@
 #include <ctype.h>
 
 #define CAMPOSVENDA 7
+#define ERROR "Erro ao abrir ficheiro!"
 
 /*Struct de vendas?*/
 struct venda
@@ -38,21 +39,24 @@ Venda* insere_struct_array(Venda* array, const Venda elem)
     return newarray;
 }
 
-char** insere_elem_array(char** array, const char *elem) 
+char** insere_elem_array(char** array, const char *elem, int* sizePtr) 
 {
+    /*
     int lastIndex = 0;
     while (array[lastIndex] != NULL)    /* para saber o tamanho actual */
+    /*
         lastIndex++;
+    */
 
-    char** newarray = (char**) realloc(array, (lastIndex+2) * sizeof(char*));   /* realoca */
+    char** newarray = (char**) realloc(array, (*sizePtr + 2) * sizeof(char*));   /* realoca */
     if (!newarray) return array;
 
     char* newElem = strdup(elem);
     if (!newElem) return newarray;
 
-    newarray[lastIndex] = newElem;     /* inserção do novo elemento */
-    lastIndex++;
-    newarray[lastIndex] = NULL;           /* coloca a marca */
+    newarray[*sizePtr] = newElem;     /* inserção do novo elemento */
+    /* newarray[(char) array[0]] = NULL;           /* coloca a marca */
+    (*sizePtr)++;
     return newarray;
 }
 
@@ -128,11 +132,10 @@ int isBetweenNum(int n, int l, int r)
 
 
 /* Ler e validar ficheiro produtos, separar em 2 funções depois */
-void lerProdutos(char** arrayProd)
+char** lerProdutos(char** arrayProd, int* sizeProdPtr)
 {
     FILE *fp;
-    char* produto;
-    char line[6];
+    char line[7];
     int i = 0;
 
     char* pnumber;
@@ -143,7 +146,7 @@ void lerProdutos(char** arrayProd)
     {
         while (fgets(line,7,fp) != NULL)
         {
-            val = (strlen(line) <= 6);
+            val = (strlen(line) <= 6);        
 
             if (val)
             {
@@ -158,23 +161,42 @@ void lerProdutos(char** arrayProd)
             }
             /* Store no array */
             if (val)
-            {
-                produto = strdup(line);
-                arrayProd = insere_elem_array(arrayProd, produto);
-            }
+                arrayProd = insere_elem_array(arrayProd, line, sizeProdPtr);            
         }
     }
 
     fclose(fp);
+    return arrayProd;
 }
 
+char** duplicate_removal(char** array, int* old_size)
+{
+    int new_size = 0, i;
+    char** temp_array = (char**) malloc(*old_size * sizeof(char*));
+
+    temp_array[0] = strdup(array[0]);
+    new_size++;
+
+    for (i = 1; i < *old_size; i++)
+    {
+        if (strcmp(array[i], array[i - 1]) != 0)
+        {
+            temp_array[new_size] = strdup(array[i]);
+            new_size++;
+        }
+    }    
+    temp_array[new_size] = NULL;
+    for (i = 0; i < *old_size; i++)
+        free(array[i]);
+    free(array);
+    *old_size = new_size;
+    return temp_array;
+}
 /* Ler e validar clientes */
-void lerClientes(char** arrayCli)
+char** lerClientes(char** arrayCli, int* sizeCliPtr)
 {
     FILE *fp;
-    char* cliente;
-    char line[5];
-    int i = 0;
+    char line[6];
 
     char* cnumber;
 
@@ -184,10 +206,10 @@ void lerClientes(char** arrayCli)
     {
         while (fgets(line,6,fp) != NULL)
         {
+            val = (strlen(line) <= 5);
 
-            val = (strlen(line) <= 6);
-
-            if (val) { val = isUpperN(line, 1); }
+            if (val) 
+                val = isUpperN(line, 1); 
 
             /* Check number */
             if (val)
@@ -197,14 +219,33 @@ void lerClientes(char** arrayCli)
             }
 
             /* Store no array */
-            if (val)
-            {
-                cliente = strdup(line);
-                arrayCli = insere_elem_array(arrayCli, cliente);
-            }
+            if (val)            
+                arrayCli = insere_elem_array(arrayCli, line, sizeCliPtr);            
         }
     }
 
+    fclose(fp);
+    return arrayCli;
+}
+
+void ficheiroProdCliValidos(char** array, char* nome)
+{
+    FILE *fp;    
+    if ((fp = fopen(nome, "w")) == NULL)
+    {
+        fprintf(stderr, "%s\n", ERROR);
+        return;
+    }
+    int i = 0;
+    /* Ciclo para escrever */
+    if (array[0] == NULL) 
+        printf("ARRAY VAZIO !!\n");
+    else 
+        while (array[i] != NULL) 
+        {
+            fprintf(fp, "%s\n", array[i]);
+            i++;
+        }
     fclose(fp);
 }
 
@@ -322,73 +363,51 @@ int maisLongaVenda(char* vendas[])
     return max;
 }
 
+int compareFunction(const void* a, const void* b)
+{
+    const char* strA = *(const char**) a;
+    const char* strB = *(const char**) b;
+    return strcmp(strA, strB);
+}
+
 /* Main */
 int main(int argc, char const *argv[])
 {
     /* Começar os arrays */
-    /*
-    Venda* arrayVendas = (Venda*) malloc(1 * sizeof(Venda*));
-    arrayVendas[0] = NULL;
-    */
-    char** arrayProd = (char**) malloc(1 * sizeof(char*));
+    char** arrayProd = (char**) malloc(sizeof(char*));
     arrayProd[0] = NULL;
+    int arrayProdSize = 0;
+    int* sizeProdPtr = &arrayProdSize;
 
-    /*
     char** arrayCli = (char**) malloc(1 * sizeof(char*));
     arrayCli[0] = NULL;
-    */
-
-    /*
-    char* clientes[10];
-    char* vendas[10];
-    Venda* arrayVendas = (Venda*) malloc(1 * sizeof(Venda));
-    arrayVendas[0] = NULL;
-    */
+    int arrayCliSize = 0;
+    int* sizeCliPtr = &arrayCliSize;  
 
     /* Ler os ficheiros e validar para arrays */
-    lerProdutos(arrayProd);
+    arrayProd = lerProdutos(arrayProd, sizeProdPtr);
+    arrayCli = lerClientes(arrayCli, sizeCliPtr);
     
-    /*
-    lerClientes(arrayCli);
-    */
+    /* Ordenar arrays de Produtos */
+    qsort(arrayProd, arrayProdSize, sizeof(char *), compareFunction);
+    arrayProd = duplicate_removal(arrayProd, sizeProdPtr);
+
+    qsort(arrayCli, arrayCliSize, sizeof(char *), compareFunction);
+    arrayCli = duplicate_removal(arrayCli, sizeCliPtr);
     
-    /*
-    lerVendas(arrayVendas, arrayProd, arrayCli);
-    */
-    
-    /* Criar ficheiro de vendas válidas */
-    /*
-    ficheiroVendasCertas(arrayVendas); */
+    /* Criar ficheiro de vendas válidas */    
+    ficheiroProdCliValidos(arrayProd, "Produtos_Validos.txt");
+    ficheiroProdCliValidos(arrayCli, "Clientes_Validos.txt");
 
     /* Libertar a memória */
-    int i = 0;
-    while (*(arrayProd[i]) != NULL)
-    {
-        free(*(arrayProd[i]));
-        i++;
-    }
+    int i;
+    for (i = 0; i < (*sizeProdPtr); i++)
+        free(arrayProd[i]);
     free(arrayProd);
 
-    /*
-    i = 0;
-    while (arrayCli[i] != NULL)
-    {
+    for (i = 0; i < (*sizeCliPtr); i++)
         free(arrayCli[i]);
-        i++;
-    }
     free(arrayCli);
-    */
-
-    /*
-    i = 0;
-    
-    while (arrayVendas[i] != NULL)
-    {
-        free(arrayVendas[i]);
-        i++;
-    }
-    free(arrayVendas);
-    */
 
     return 0;
 }
