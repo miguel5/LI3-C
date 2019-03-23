@@ -1,7 +1,7 @@
 #include "venda.h"
 
 
-/*Struct de vendas?*/
+/*Struct de vendas*/
 struct venda
 {
     char* tipoCompra;
@@ -13,6 +13,9 @@ struct venda
     int filial;
 };
 
+/*
+* Getters
+*/
 
 char* getTipoCompra(Venda v){
 	return v->tipoCompra;
@@ -42,6 +45,34 @@ int getFilial(Venda v){
 	return v->filial;
 }
 
+/*
+* Setters
+*/
+
+void setTipoCompra(char* tipoCompra, Venda v){
+	v->tipoCompra = tipoCompra;
+}
+
+void setCliente(char* cliente, Venda v){
+	v->cliente = cliente;
+}
+
+void setProduto(char* produto, Venda v){
+	v->produto = produto;
+}
+
+void setQuantidade(int quantidade, Venda v){
+	v->quantidade = quantidade;
+}
+
+void setPreco(double preco, Venda v){
+	v->preco = preco;
+}
+
 void setMes(int mes, Venda v){
 	v->mes = mes;
+}
+
+void setFilial(int filial, Venda v){
+	v->filial = filial;
 }
