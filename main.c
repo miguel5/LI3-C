@@ -3,23 +3,11 @@
 #include <strings.h>
 #include <string.h>
 #include <ctype.h>
+#include "venda.h"
 
 #define CAMPOSVENDA 7
 #define ERROR "Erro ao abrir ficheiro!"
 
-/*Struct de vendas?*/
-struct venda
-{
-    char* tipoCompra;
-    char* cliente;
-    char* produto;
-    int quantidade;
-    double preco;
-    int mes;
-    int filial;
-};
-
-typedef struct venda* Venda;
 
 Venda* insere_struct_array(Venda* array, const Venda elem) 
 {
@@ -78,18 +66,18 @@ char** tokenizeLinhaVendaDyn(char* vendaRaw)
 Venda regVenda(char* linhaVendaOk)  
 {
     Venda vendaAux;
-    vendaAux = (Venda) malloc(sizeof(struct venda));
+    vendaAux = (Venda) malloc(sizeof(Venda));
     char** campos;
     campos = tokenizeLinhaVendaDyn(linhaVendaOk);
-    vendaAux -> produto = strdup(campos[0]);
-    vendaAux -> cliente = strdup(campos[3]);
-    vendaAux -> preco = atof(campos[1]);
-    vendaAux -> quantidade = atoi(campos[2]);
-    vendaAux -> tipoCompra = campos[4];
-    vendaAux -> mes = atoi(campos[5]);
-    vendaAux -> filial = atoi(campos[6]);  
+    setProduto(strdup(campos[0]), vendaAux);
+    setCliente(strdup(campos[3]), vendaAux);
+    setPreco(atof(campos[1]), vendaAux);
+    setQuantidade(atoi(campos[2]), vendaAux);
+    setTipoCompra(campos[4], vendaAux);
+    setMes(atoi(campos[5]), vendaAux);
+    setFilial(atoi(campos[6]), vendaAux);  
     free(campos);
-    return vendaAux;   
+    return vendaAux;
 }
 
 /* Funções de comparação entre arrays para validar*/
@@ -280,17 +268,17 @@ void lerVendas(Venda* arrayVendas, char** arrayProd, char** arrayCli)
             venda = regVenda(linef);
             
             /* Validar todos os aspetos */
-            val = isBetweenNum(venda -> preco,0.0,999.99);
+            val = isBetweenNum(getPreco(venda),0.0,999.99);
 
-            if (val) { val = isBetweenNum(venda -> quantidade,1,200); }
+            if (val) { val = isBetweenNum(getQuantidade(venda),1,200); }
 
-            if (val) { val = isBetweenNum(venda -> mes,1,12); }
+            if (val) { val = isBetweenNum(getMes(venda),1,12); }
 
-            if (val) { val = isBetweenNum(venda -> filial,1,3); }
+            if (val) { val = isBetweenNum(getFilial(venda),1,3); }
 
-            if (val) { val = isInArray(venda -> produto, arrayProd); }
+            if (val) { val = isInArray(getProduto(venda), arrayProd); }
 
-            if (val) { val = isInArray(venda -> cliente, arrayCli); }
+            if (val) { val = isInArray(getCliente(venda), arrayCli); }
 
             printf("val: %d\n", val);
             
@@ -316,13 +304,13 @@ void ficheiroVendasCertas(Venda* arrayVendas)
     else 
         while ((str = arrayVendas[i]) != NULL) 
         {
-            fprintf("%s %f %d %c %s %d %d\n",   str -> produto,
-                                                str -> preco,
-                                                str -> quantidade,
-                                                str -> tipoCompra,
-                                                str -> cliente,
-                                                str -> mes,
-                                                str -> filial);
+            fprintf("%s %f %d %c %s %d %d\n",   getProduto(str),
+                                                getPreco(str),
+                                                getQuantidade(str),
+                                                getTipoCompra(str),
+                                                getCliente(str),
+                                                getMes(str),
+                                                getFilial(str));
             i++;
         }
     fclose(fp);
