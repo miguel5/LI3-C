@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "venda.h"
+#include "produto.h"
 
 #define CAMPOSVENDA 7
 #define ERROR "Erro ao abrir ficheiro!"
@@ -211,6 +212,8 @@ char** lerClientes(char** arrayCli, int* sizeCliPtr)
                 arrayCli = insere_elem_array(arrayCli, line, sizeCliPtr);            
         }
     }
+    else
+        fprintf(stderr, "%s\n", ERROR);
 
     fclose(fp);
     return arrayCli;
@@ -287,11 +290,13 @@ void lerVendas(Venda* arrayVendas, char** arrayProd, char** arrayCli)
                 arrayVendas = insere_struct_array(arrayVendas, venda);
         }
     }
+    else
+        fprintf(stderr, "%s\n", ERROR);
 
     fclose(fp);
 }
 
-/* Criar ficheiro de vebdas válidas */
+/* Criar ficheiro de vendas válidas */
 void ficheiroVendasCertas(Venda* arrayVendas)
 {
     FILE *fp;    
@@ -386,6 +391,12 @@ int main(int argc, char const *argv[])
     /* Criar ficheiro de vendas válidas */    
     ficheiroProdCliValidos(arrayProd, "Produtos_Validos.txt");
     ficheiroProdCliValidos(arrayCli, "Clientes_Validos.txt");
+
+    /*
+    * Teste modulo produto.c
+    Produto p = criaProd("A1234");
+    printf("%s\n", getProdRef(p));
+    */
 
     /* Libertar a memória */
     int i;
