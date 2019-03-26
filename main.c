@@ -3,9 +3,9 @@
 #include <strings.h>
 #include <string.h>
 #include <ctype.h>
-#include <gmodule.h>
 #include "venda.h"
 #include "produto.h"
+#include "cliente.h"
 
 #define CAMPOSVENDA 7
 #define ERROR "Erro ao abrir ficheiro!"
@@ -398,6 +398,12 @@ int main(int argc, char const *argv[])
     Produto p = criaProd("A1234");
     printf("%s\n", getProdRef(p));
     */
+
+    /*
+     * Teste modulo cliente
+    */
+    Cliente c = criaCliente("Ze Manel");
+    printf("%s\n", getCliRef(c));
 
     /* Libertar a memória */
     int i;

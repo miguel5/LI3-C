@@ -5,7 +5,7 @@ TARGET=main
 default: $(TARGET)
 
 main: $(TARGET).c venda.c
-	gcc -Wall -o $(TARGET) $(TARGET).c venda.c produto.c
+	gcc -Wall -o $(TARGET) $(TARGET).c venda.c produto.c cliente.c
 
 exemplo: exemploVendaH.c venda.c
 	gcc -Wall -o exemplo exemploVendaH.c venda.c
