@@ -10,8 +10,8 @@ main: $(TARGET).c venda.c
 exemplo: exemploVendaH.c venda.c
 	gcc -Wall -o exemplo exemploVendaH.c venda.c
 
-tree: $(TARGET).c venda.c
-	gcc -Wall $(TARGET).c `pkg-config --cflags --libs gmodule-2.0` venda.c -o tree 
+tree: tree.c venda.c
+	gcc -Wall tree.c `pkg-config --cflags --libs gmodule-2.0` venda.c -o tree 
 
 clean:
 	rm $(TARGET)
