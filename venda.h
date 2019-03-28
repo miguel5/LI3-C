@@ -30,6 +30,6 @@ void setPreco(double, Venda);
 
 void setMes(int, Venda);
 
-void setFilial(int, Venda);
+void setFilial(int, Venda);		
 
 #endif

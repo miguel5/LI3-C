@@ -20,5 +20,5 @@ Produto criaProd(char* prod_ref)
 	Produto p = (Produto) malloc(sizeof(struct produto));
 	p->prod_ref = strdup(prod_ref);
 
-	return p;
+	return p;		
 }

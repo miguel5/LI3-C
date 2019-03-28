@@ -6,6 +6,7 @@
 #include "venda.h"
 #include "produto.h"
 #include "cliente.h"
+#include "filial.h"
 
 #define CAMPOSVENDA 7
 #define ERROR "Erro ao abrir ficheiro!"
@@ -400,10 +401,16 @@ int main(int argc, char const *argv[])
     */
 
     /*
-     * Teste modulo cliente
-    */
+     * Teste modulo cliente.c
     Cliente c = criaCliente("Ze Manel");
     printf("%s\n", getCliRef(c));
+    */
+
+    /*
+     * Teste modulo filial.c
+    */
+    //Filial f = newFilial();
+
 
     /* Libertar a memória */
     int i;
