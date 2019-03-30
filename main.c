@@ -377,7 +377,7 @@ int main(int argc, char const *argv[])
     char** arrayCli = (char**) malloc(1 * sizeof(char*));
     arrayCli[0] = NULL;
     int arrayCliSize = 0;
-    int* sizeCliPtr = &arrayCliSize;  
+    int* sizeCliPtr = &arrayCliSize;
 
     /* Ler os ficheiros e validar para arrays */
     arrayProd = lerProdutos(arrayProd, sizeProdPtr);
@@ -409,7 +409,10 @@ int main(int argc, char const *argv[])
     /*
      * Teste modulo filial.c
     */
+
     //Filial f = newFilial();
+    //filialInsert(f, "Ze Manel", "1234");
+    //printf("%s\n", (char*) filialLookup(f, "Ze Manel"));
 
 
     /* Libertar a memória */
