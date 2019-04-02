@@ -3,6 +3,7 @@
 #include <strings.h>
 #include <string.h>
 #include <ctype.h>
+#include <gmodule.h>
 #include "venda.h"
 #include "produto.h"
 #include "cliente.h"
@@ -281,25 +282,13 @@ void ficheiroProdCliValidos(char** array, char* nome)
 }
 
 /* Ler e validar ficheiro vendas, separar em 2 funções depois */
-void lerVendas(Venda* arrayVendas, char** arrayProd, char** arrayCli)
+void lerVendas(Filial vendasTree, char** arrayProd, char** arrayCli)
 {
     FILE *fp;
 
     Venda venda;
-    char line[30];
-    char linef[30];
-    //int i = 0;
-    /*
-    char* produto;
-    char* preco;
-    char* quant;
-    char* compra;
-    char* cliente;
-    char* mes;
-    char* filial;
-    */
-    //int l;
-
+    char line[35];
+    char linef[35];
     int val = 1;
     int validCount = 0;
 
@@ -328,9 +317,9 @@ void lerVendas(Venda* arrayVendas, char** arrayProd, char** arrayCli)
 
             //printf("val: %d\n", val);
             
-            /* Store no array */
+            /* Store na GTree */
             if (val){
-                arrayVendas = insere_struct_array(arrayVendas, venda);
+                filialInsert(vendasTree, venda, "1");
                 validCount++;
             }
         }
@@ -461,6 +450,12 @@ int main(int argc, char const *argv[])
     lerVendas(arrayVendas, arrayProd, arrayCli);
     ficheiroVendasCertas(arrayVendas);
     */
+
+    //GTree* tree = g_tree_new((GCompareFunc)g_ascii_strcasecmp);
+    Filial f = newFilial();
+    lerVendas(f, arrayProd, arrayCli);
+    forEach1(f);
+
 
     /*
      * Teste modulo filial.c

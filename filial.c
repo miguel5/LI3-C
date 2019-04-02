@@ -1,6 +1,7 @@
 #include <gmodule.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "venda.h"
 #include "filial.h"
 
@@ -27,7 +28,7 @@ Filial newFilial(){
 	return f;
 }
 
-// Insere uma um valor(void*) com uma chave(char*) numa filal
+// Insere uma um valor(void*) com uma chave(void*) numa filal
 void filialInsert(Filial f, void* key, void* value){
 	g_tree_insert(f->t, key, value);
 
@@ -43,4 +44,15 @@ int filialLookup(Filial f, Venda key){
 		return atoi(res);
 	else
 		return 0;
+}
+
+gboolean iter_all(gpointer key, gpointer value, gpointer data) {
+ printf("%s, %s\n", (char*) vendaToString(key), value);
+ return FALSE;
+}
+
+// Teste
+void forEach1(Filial f){
+	g_tree_foreach(f->t, (GTraverseFunc)iter_all, NULL);
+	return;
 }
