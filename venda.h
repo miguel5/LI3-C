@@ -30,6 +30,14 @@ void setPreco(double, Venda);
 
 void setMes(int, Venda);
 
-void setFilial(int, Venda);		
+void setFilial(int, Venda);
+
+char* vendaToString(Venda);
+
+Venda novaVenda(char*, char*, char*, double, int, int, int);
+
+Venda cloneVenda(Venda);
+
+int vendaCmp(Venda, Venda);
 
 #endif

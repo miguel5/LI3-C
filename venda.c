@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "venda.h"
 
 
@@ -7,8 +10,8 @@ struct venda
     char* tipoCompra;
     char* cliente;
     char* produto;
-    int quantidade;
     double preco;
+    int quantidade;
     int mes;
     int filial;
 };
@@ -75,4 +78,60 @@ void setMes(int mes, Venda v){
 
 void setFilial(int filial, Venda v){
 	v->filial = filial;
+}
+
+Venda novaVenda(char* tipoCompra, char* cliente, char* produto, double preco, int qtd, int mes, int filial){
+	
+	Venda v = (Venda) malloc(sizeof(struct venda));
+
+	v->tipoCompra = strdup(tipoCompra);
+	v->cliente = strdup(cliente);
+	v->produto = strdup(produto);
+	v->quantidade = qtd;
+	v->preco = preco;
+	v->mes = mes;
+	v->filial = filial;
+
+	return v;
+}
+
+Venda cloneVenda(Venda v){
+	Venda clone = (Venda) malloc(sizeof(struct venda));
+
+	clone->tipoCompra = v->tipoCompra;
+	clone->cliente = v->cliente;
+	clone->produto = v->produto;
+	clone->quantidade = v->quantidade;
+	clone->preco = v->preco;
+	clone->mes = v-> mes;
+	clone->filial = v->filial;
+
+	return clone;
+}
+
+int vendaCmp(Venda v1, Venda v2){
+	
+	if( strcmp(v1->tipoCompra, v2->tipoCompra) == 0 &&
+		strcmp(v1->cliente, v2->cliente) == 0 &&
+		strcmp(v1->produto, v2->produto) == 0 &&
+		v1->quantidade == v2->quantidade &&
+		v1->preco == v2->preco &&
+		v1->mes == v2->mes &&
+		v1->filial == v2->filial)
+		return 0;
+	else
+		return strcmp(v1->produto, v2->produto);
+}
+
+char* vendaToString(Venda v){
+	char* str = malloc(sizeof(char)*100);
+
+	sprintf(str, "%s %f %d %s %s %d %d",    v->produto,
+											v->preco,
+											v->quantidade,
+											v->tipoCompra,
+											v->cliente,
+											v->mes,
+											v->filial);
+	return str;
 }

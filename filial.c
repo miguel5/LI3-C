@@ -1,7 +1,9 @@
 #include <gmodule.h>
 #include <stdlib.h>
 #include <string.h>
+#include "venda.h"
 #include "filial.h"
+
 
 /*
  * Struct de uma filial
@@ -20,19 +22,25 @@ int compFunc_strcmp(char* a, char* b)
 // Cria uma estrutura Filial vazia
 Filial newFilial(){
 	Filial f = (Filial) malloc(sizeof(struct filial));
-	f->t = g_tree_new((GCompareFunc) compFunc_strcmp);
+	f->t = g_tree_new((GCompareFunc) vendaCmp);
 
 	return f;
 }
 
 // Insere uma um valor(void*) com uma chave(char*) numa filal
-void filialInsert(Filial f, char* key, void* value){
+void filialInsert(Filial f, void* key, void* value){
 	g_tree_insert(f->t, key, value);
 
 	return;
 }
 
 // Devolve o valor guardado no nodo com a chave dada
-void* filialLookup(Filial f, char* key){
-	return g_tree_lookup(f->t, key);
+int filialLookup(Filial f, Venda key){
+	
+	void* res = g_tree_lookup(f->t, key);
+
+	if(res != NULL)
+		return atoi(res);
+	else
+		return 0;
 }
