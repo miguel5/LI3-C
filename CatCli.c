@@ -1,36 +1,40 @@
 #include <gmodule.h>
 #include <string.h>
 #include <stdlib.h>
-#include "cliente.h"
+#include "CatCli.h"
 
-/*
-* Struct de um cliente
-*/
-struct cliente
+//Struct de um cliente
+struct catCli
 {
     GTree* t;
 };
 
 // Funçao de criterio de inserçao na arvore
-int compFunc_strcmp(char* a, char* b)
+int compFunc_catCli(char* a, char* b)
 {
     return strcmp(a,b);
 }
 
-// Cria uma estrutura Filial vazia
-Cliente newCliente(){
-    Cliente c = (Cliente) malloc(sizeof(struct cliente));
-    c -> t = g_tree_new((GCompareFunc) compFunc_strcmp);
+// Cria uma estrutura CatCli vazia
+CatCli newCatCli(){
+    CatCli cc = (CatCli) malloc(sizeof(struct catCli));
+    cc->t = g_tree_new((GCompareFunc) compFunc_catCli);
 
-    return c;
+    return cc;
 }
 
-// Insere uma um valor(void*) com uma chave(char*) numa filal
-void clienteInsert(Cliente c, char* key, void* value){
-    g_tree_insert(c->t, key, value);
+// Insere uma um valor(void*) com uma chave(char*) num Catálogo de Clientes
+void catCliInsert(CatCli cc, void* key, void* value){
+    g_tree_insert(cc->t, key, value);
+
+    return;
 }
 
 // Devolve o valor guardado no nodo com a chave dada
-void* clienteLookup(Cliente c, char* key){
-    return g_tree_lookup(c->t, key);
+void* catCliLookup(CatCli cc, char* key){
+    return g_tree_lookup(cc->t, key);
+}
+
+int catCliNodos(CatCli cc){
+	return g_tree_nnodes(cc->t);
 }

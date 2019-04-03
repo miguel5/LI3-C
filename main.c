@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
 #include <string.h>
 #include <ctype.h>
 #include <gmodule.h>
@@ -8,7 +7,6 @@
 #include "produto.h"
 #include "cliente.h"
 #include "filial.h"
-#include "CatProd.h"
 
 #define CAMPOSVENDA 7
 #define ERROR "Erro ao abrir ficheiro!"
@@ -73,8 +71,8 @@ Venda regVenda(char* linhaVendaOk)
     char** campos;
     campos = tokenizeLinhaVendaDyn(linhaVendaOk);
 
-    Venda v = novaVenda(campos[4],
-                        campos[3],
+    Venda v = novaVenda(campos[3],
+                        campos[4],
                         campos[0],
                         atof(campos[1]),
                         atoi(campos[2]),
@@ -123,80 +121,31 @@ int isBetweenNum(int n, int l, int r)
     return ((n >= l) && (n <= r));
 }
 
-// Teste
-/*
+// Ler produtos e guardar numa estrutura CatProd
 void lerProdutos(CatProd cp)
 {
     FILE *fp;
-    char line[7];
+    char* line = malloc(sizeof(char*));
 
-    char* pnumber;
-
-    int val = 1;
+    int val = 0;
 
     if((fp = fopen("Produtos.txt", "r")) != NULL)
     {
         while (fgets(line,7,fp) != NULL)
         {
-            val = (strlen(line) <= 6);        
+            Produto prod = criaProd(line);
+            val = validaProduto(prod);
 
-            if (val)
-            {
-                val = isUpperN(line,2);
-            }
-
-            if (val)
-            {
-                // Check number
-                pnumber = &line[2];
-                val = isBetweenNum(atoi(pnumber), 1000, 9999);
-            }
             // Store no array
-            if (val)
-                catProdInsert(cp, line, 1);            
+            if (val){
+                catProdInsert(cp, strdup(line), prod);
+                free(prod);
+            }
+
         }
     }
 
     fclose(fp);
-}
-*/
-
-/* Ler e validar ficheiro produtos, separar em 2 funções depois */
-char** lerProdutos(char** arrayProd, int* sizeProdPtr)
-{
-    FILE *fp;
-    char line[7];
-    //int i = 0;
-
-    char* pnumber;
-
-    int val = 1;
-
-    if((fp = fopen("Produtos.txt", "r")) != NULL)
-    {
-        while (fgets(line,7,fp) != NULL)
-        {
-            val = (strlen(line) <= 6);        
-
-            if (val)
-            {
-                val = isUpperN(line,2);
-            }
-
-            if (val)
-            {
-                //Check number
-                pnumber = &line[2];
-                val = isBetweenNum(atoi(pnumber), 1000, 9999);
-            }
-            // Store no array
-            if (val)
-                arrayProd = insere_elem_array(arrayProd, line, sizeProdPtr);            
-        }
-    }
-
-    fclose(fp);
-    return arrayProd;
 }
 
 char** duplicate_removal(char** array, int* old_size)
@@ -222,42 +171,32 @@ char** duplicate_removal(char** array, int* old_size)
     *old_size = new_size;
     return temp_array;
 }
-/* Ler e validar clientes */
-char** lerClientes(char** arrayCli, int* sizeCliPtr)
+
+// Ler e validar clientes
+void lerClientes(CatCli cc)
 {
     FILE *fp;
-    char line[6];
+    char* line = malloc(sizeof(char*));
 
-    char* cnumber;
-
-    int val = 1;
+    int val = 0;
 
     if((fp = fopen("Clientes.txt", "r")) != NULL)
     {
         while (fgets(line,6,fp) != NULL)
-        {
-            val = (strlen(line) <= 5);
-
-            if (val) 
-                val = isUpperN(line, 1); 
-
-            /* Check number */
-            if (val)
-            {
-                cnumber = &line[1];
-                val = isBetweenNum(atoi(cnumber), 1000, 5000);
-            }
+        {   
+            Cliente cli = criaCliente(line);
+            val = validaCliente(cli);
 
             /* Store no array */
             if (val)            
-                arrayCli = insere_elem_array(arrayCli, line, sizeCliPtr);            
+                catCliInsert(cc, strdup(line), cli);
+                free(cli);            
         }
     }
     else
         fprintf(stderr, "%s\n", ERROR);
 
     fclose(fp);
-    return arrayCli;
 }
 
 void ficheiroProdCliValidos(char** array, char* nome)
@@ -281,46 +220,33 @@ void ficheiroProdCliValidos(char** array, char* nome)
     fclose(fp);
 }
 
-/* Ler e validar ficheiro vendas, separar em 2 funções depois */
-void lerVendas(Filial vendasTree, char** arrayProd, char** arrayCli)
+void lerVendas(Filial vendasTree, CatProd cp, CatCli cc)
 {
     FILE *fp;
 
     Venda venda;
-    char line[35];
-    char linef[35];
-    int val = 1;
+    char* line = malloc(sizeof(char*));
+    char* linef = malloc(sizeof(char*));
+    int val = 0;
     int validCount = 0;
 
     if((fp = fopen("Vendas_1M.txt", "r")) != NULL)
     {
         while (fgets(line,35,fp) != NULL)
         {
-            strcpy(linef, line);
-
+            linef = strdup(line);
             venda = regVenda(linef);
-            printf("%s\n", vendaToString(venda));
-            printf("validCount: %d\n", validCount);
             
-            /* Validar todos os aspetos */
-            val = isBetweenNum(getPreco(venda),0.0,999.99);
-
-            if (val) { val = isBetweenNum(getQuantidade(venda),1,200); }
-
-            if (val) { val = isBetweenNum(getMes(venda),1,12); }
-
-            if (val) { val = isBetweenNum(getFilial(venda),1,3); }
-
-            if (val) { val = isInArray(getProduto(venda), arrayProd); }
-
-            if (val) { val = isInArray(getCliente(venda), arrayCli); }
-
-            //printf("val: %d\n", val);
+            // Validar todos os aspetos
+            val = validaVenda(venda, cp, cc);
             
-            /* Store na GTree */
+            // Store na GTree
             if (val){
                 filialInsert(vendasTree, venda, "1");
                 validCount++;
+                printf("%s\n", vendaToString(venda));
+                printf("Vendas válidas: %d\n", validCount);
+                //free(venda);
             }
         }
     }
@@ -354,18 +280,7 @@ void ficheiroVendasCertas(Venda* arrayVendas)
         }
     fclose(fp);
 }
-/*
-void printArrayDyn (char** array) {
-    char* str; int i=0;
-    if(array[0] == NULL) printf("ARRAY VAZIO !!\n");
-    else {
-           while ((str = array[i]) != NULL) {
-              printf("%s\n", str);
-              i++;
-           }
-    }
-}
-*/
+
 /* Ficheiros de validação? */
 int maisLongaVenda(char* vendas[])
 {
@@ -400,7 +315,7 @@ int compareFunction(const void* a, const void* b)
 /* Main */
 int main(int argc, char const *argv[])
 {
-    /* Começar os arrays */
+    /* Começar os arrays
     char** arrayProd = (char**) malloc(sizeof(char*));
     arrayProd[0] = NULL;
     int arrayProdSize = 0;
@@ -409,35 +324,41 @@ int main(int argc, char const *argv[])
     char** arrayCli = (char**) malloc(1 * sizeof(char*));
     arrayCli[0] = NULL;
     int arrayCliSize = 0;
-    int* sizeCliPtr = &arrayCliSize;
+    int* sizeCliPtr = &arrayCliSize;*/
 
-    //CatProd cp = newCatProd();
+    CatProd cp = newCatProd();
+    CatCli cc = newCatCli();
 
     /* Ler os ficheiros e validar para arrays */
-    arrayProd = lerProdutos(arrayProd, sizeProdPtr);
-    arrayCli = lerClientes(arrayCli, sizeCliPtr);
-    
-    /* Ordenar arrays de Produtos */
+    //arrayProd = lerProdutos(arrayProd, sizeProdPtr);
+    //arrayCli = lerClientes(arrayCli, sizeCliPtr);
+    lerProdutos(cp);
+    lerClientes(cc);
+
+    //Produto p = (Produto) catProdLookup(cp, "PE1822");
+    //printf("%s\n", getProdRef(p));
+
+    /*
+    char* foo = catCliLookup(cc, "A3439");
+    if(foo != NULL)
+        printf("%s\n", foo);
+    else
+        printf("Lookup returned NULL!\n");
+    */
+
+    //Venda v = novaVenda("N", "A3439", "HR1648", 9.99, 20, 8, 3);
+    //printf("%d\n", validaVenda(v, cp, cc));
+
+    /* Ordenar arrays de Produtos
     qsort(arrayProd, arrayProdSize, sizeof(char *), compareFunction);
     arrayProd = duplicate_removal(arrayProd, sizeProdPtr);
 
     qsort(arrayCli, arrayCliSize, sizeof(char *), compareFunction);
-    arrayCli = duplicate_removal(arrayCli, sizeCliPtr);
+    arrayCli = duplicate_removal(arrayCli, sizeCliPtr);*/
     
-    /* Criar ficheiro de vendas válidas */    
+    /* Criar ficheiro de vendas válidas    
     ficheiroProdCliValidos(arrayProd, "Produtos_Validos.txt");
     ficheiroProdCliValidos(arrayCli, "Clientes_Validos.txt");
-
-    /*
-    * Teste modulo produto.c
-    Produto p = criaProd("A1234");
-    printf("%s\n", getProdRef(p));
-    */
-
-    /*
-     * Teste modulo cliente.c
-    Cliente c = criaCliente("Ze Manel");
-    printf("%s\n", getCliRef(c));
     */
     
     //Venda foo = novaVenda("N", "Ze Manel", "qwerty", 9.99, 20, 8, 3);
@@ -445,18 +366,11 @@ int main(int argc, char const *argv[])
     //printf("%s\n", vendaToString(foo));
     //printf("Is equal: %d\n", vendaCmp(foo, foo2));
 
-    /*
-    Venda* arrayVendas = (Venda*) malloc(sizeof(Venda)*1100000);
-    lerVendas(arrayVendas, arrayProd, arrayCli);
-    ficheiroVendasCertas(arrayVendas);
-    */
-
-    //GTree* tree = g_tree_new((GCompareFunc)g_ascii_strcasecmp);
     Filial f = newFilial();
-    lerVendas(f, arrayProd, arrayCli);
-    forEach1(f);
-
-
+    lerVendas(f, cp, cc);
+    //forEach1(f);
+    //printf("CatProd nodos: %d\n", catProdNodos(cp));
+    //printf("CatCli nodos: %d\n", catCliNodos(cc));
     /*
      * Teste modulo filial.c
     */
@@ -466,7 +380,7 @@ int main(int argc, char const *argv[])
     printf("%d\n", filialLookup(f, foo2));
     */
 
-    /* Libertar a memória */
+    /* Libertar a memória 
     int i;
     for (i = 0; i < (*sizeProdPtr); i++)
         free(arrayProd[i]);
@@ -474,7 +388,7 @@ int main(int argc, char const *argv[])
 
     for (i = 0; i < (*sizeCliPtr); i++)
         free(arrayCli[i]);
-    free(arrayCli);
+    free(arrayCli);*/
 
     return 0;
 }

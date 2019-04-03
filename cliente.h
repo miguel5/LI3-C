@@ -7,4 +7,6 @@ Cliente criaCliente(char*);
 
 char* getCliRef(Cliente);
 
+int validaCliente(Cliente);
+
 #endif

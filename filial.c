@@ -14,12 +14,6 @@ struct filial
 	GTree* t;
 };
 
-// Funçao de criterio de insereçao na arvore
-int compFunc_strcmp(char* a, char* b)
-{
-	return strcmp(a,b);
-}
-
 // Cria uma estrutura Filial vazia
 Filial newFilial(){
 	Filial f = (Filial) malloc(sizeof(struct filial));
@@ -46,13 +40,16 @@ int filialLookup(Filial f, Venda key){
 		return 0;
 }
 
+/*
 gboolean iter_all(gpointer key, gpointer value, gpointer data) {
- printf("%s, %s\n", (char*) vendaToString(key), value);
+ printf("%s, %s\n", vendaToString(key), value);
  return FALSE;
-}
+}*/
 
 // Teste
+/*
 void forEach1(Filial f){
 	g_tree_foreach(f->t, (GTraverseFunc)iter_all, NULL);
 	return;
 }
+*/

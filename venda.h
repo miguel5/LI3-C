@@ -1,5 +1,7 @@
 #ifndef VENDA_H
 #define VENDA_H
+#include "CatProd.h"
+#include "CatCli.h"
 
 
 typedef struct venda* Venda;
@@ -39,5 +41,7 @@ Venda novaVenda(char*, char*, char*, double, int, int, int);
 Venda cloneVenda(Venda);
 
 int vendaCmp(Venda, Venda);
+
+int validaVenda(Venda, CatProd, CatCli);
 
 #endif

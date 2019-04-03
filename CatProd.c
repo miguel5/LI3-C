@@ -15,7 +15,7 @@ int compFunc_catProd(char* a, char* b)
 	return strcmp(a,b);
 }
 
-// Cria uma estrutura Filial vazia
+// Cria uma estrutura CatProd vazia
 CatProd newCatProd(){
 	CatProd cp = (CatProd) malloc(sizeof(struct catProd));
 	cp->t = g_tree_new((GCompareFunc) compFunc_catProd);
@@ -24,7 +24,7 @@ CatProd newCatProd(){
 }
 
 // Insere uma um valor(void*) com uma chave(char*) numa filal
-void catProdInsert(CatProd cp, char* key, void* value){
+void catProdInsert(CatProd cp, void* key, void* value){
 	g_tree_insert(cp->t, key, value);
 
 	return;
@@ -33,4 +33,8 @@ void catProdInsert(CatProd cp, char* key, void* value){
 // Devolve o valor guardado no nodo com a chave dada
 void* catProdLookup(CatProd cp, char* key){
 	return g_tree_lookup(cp->t, key);
+}
+
+int catProdNodos(CatProd cp){
+	return g_tree_nnodes(cp->t);
 }

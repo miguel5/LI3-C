@@ -4,7 +4,8 @@
 typedef struct catProd* CatProd;
 
 CatProd newCatProd();
-void catProdInsert(CatProd, char*, void*);
+void catProdInsert(CatProd, void*, void*);
 void* catProdLookup(CatProd, char*);
+int catProdNodos(CatProd);
 
 #endif

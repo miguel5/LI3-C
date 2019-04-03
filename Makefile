@@ -5,7 +5,7 @@ TARGET=main
 default: $(TARGET)
 
 main: $(TARGET).c venda.c
-	gcc -Wall $(TARGET).c venda.c produto.c cliente.c filial.c CatProd.c `pkg-config --cflags --libs gmodule-2.0` -o $(TARGET)
+	gcc -Wall $(TARGET).c venda.c produto.c cliente.c filial.c CatProd.c CatCli.c `pkg-config --cflags --libs gmodule-2.0` -o $(TARGET)
 
 exemplo: exemploVendaH.c venda.c
 	gcc -Wall -o exemplo exemploVendaH.c venda.c

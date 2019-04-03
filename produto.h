@@ -7,4 +7,6 @@ Produto criaProd(char*);
 
 char* getProdRef(Produto);
 
+int validaProduto(Produto);
+
 #endif

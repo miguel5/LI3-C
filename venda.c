@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "CatProd.h"
+#include "CatCli.h"
 #include "venda.h"
 
 
@@ -121,6 +123,22 @@ int vendaCmp(Venda v1, Venda v2){
 		return 0;
 	else
 		return strcmp(v1->produto, v2->produto);
+}
+
+int validaVenda(Venda v, CatProd cp, CatCli cc){
+
+	if( v->preco >= 0 && v->preco <= 999.99 &&
+		v->quantidade >= 1 && v->quantidade <= 200 &&
+		v->mes >= 1 && v->mes <= 12 &&
+		v->filial >= 1 && v->filial <= 3){
+			if(catProdLookup(cp, strdup(v->produto)) != NULL){
+				if(catCliLookup(cc, strdup(v->cliente)) != NULL){
+					return 1;
+				}
+			}
+		}
+		
+		return 0;
 }
 
 char* vendaToString(Venda v){
