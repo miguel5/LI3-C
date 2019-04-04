@@ -1,6 +1,7 @@
 #include <gmodule.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "CatProd.h"
 
 // Struct de um catalogo de produtos
@@ -35,6 +36,41 @@ void* catProdLookup(CatProd cp, char* key){
 	return g_tree_lookup(cp->t, key);
 }
 
+// Devolve o numero de produtos do catalogo
 int catProdNodos(CatProd cp){
 	return g_tree_nnodes(cp->t);
 }
+
+gboolean writeProd(gpointer key, gpointer value, gpointer data){
+	fprintf(data, "%s\n", (char*) key);
+	return FALSE;
+}
+
+// Escreve os produtos contidos num catalogo para um ficheiro
+void catProdToFile(CatProd cp, char* nome){
+
+	FILE *fp;
+    if ((fp = fopen(nome, "w")) == NULL)
+    {
+        fprintf(stderr, "Erro ao escrever %s!\n", nome);
+        return;
+    } 
+    
+    g_tree_foreach(cp->t, (GTraverseFunc)writeProd, fp);
+    
+    fclose(fp);
+}
+
+/*
+gboolean iter_all(gpointer key, gpointer value, gpointer data) {
+ printf("%s, %s\n", vendaToString(key), value);
+ return FALSE;
+}*/
+
+// Teste
+/*
+void forEach1(Filial f){
+	g_tree_foreach(f->t, (GTraverseFunc)iter_all, NULL);
+	return;
+}
+*/

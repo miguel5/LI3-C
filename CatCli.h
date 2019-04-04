@@ -7,5 +7,6 @@ CatCli newCatCli();
 void catCliInsert(CatCli, void*, void*);
 void* catCliLookup(CatCli, char*);
 int catCliNodos(CatCli);
+void catCliToFile(CatCli, char*);
 
 #endif

@@ -335,6 +335,9 @@ int main(int argc, char const *argv[])
     lerProdutos(cp);
     lerClientes(cc);
 
+    catProdToFile(cp, "produtos_validos.txt");
+    catCliToFile(cc, "clientes_validos1.txt");
+
     //Produto p = (Produto) catProdLookup(cp, "PE1822");
     //printf("%s\n", getProdRef(p));
 

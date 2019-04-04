@@ -1,6 +1,7 @@
 #include <gmodule.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "CatCli.h"
 
 //Struct de um cliente
@@ -37,4 +38,25 @@ void* catCliLookup(CatCli cc, char* key){
 
 int catCliNodos(CatCli cc){
 	return g_tree_nnodes(cc->t);
+}
+
+// Escreve a key(char*) de um CatCli num ficheiro (data = FILE*) 
+gboolean writeCli(gpointer key, gpointer value, gpointer data){
+	fprintf(data, "%s\n", (char*) key);
+	return FALSE;
+}
+
+// Escreve os produtos contidos num catalogo para um ficheiro
+void catCliToFile(CatCli cc, char* nome){
+
+	FILE *fp;
+    if ((fp = fopen(nome, "w")) == NULL)
+    {
+        fprintf(stderr, "Erro ao escrever %s!\n", nome);
+        return;
+    } 
+    
+    g_tree_foreach(cc->t, (GTraverseFunc)writeCli, fp);
+    
+    fclose(fp);
 }
