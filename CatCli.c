@@ -60,3 +60,8 @@ void catCliToFile(CatCli cc, char* nome){
     
     fclose(fp);
 }
+
+void freeCli(CatCli cli_list)
+{
+    g_tree_destroy(cli_list -> t);
+}
