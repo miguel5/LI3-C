@@ -10,7 +10,7 @@
 
 #define CAMPOSVENDA 7
 #define ERROR "Erro ao abrir ficheiro!"
-
+#define BUFFER 100
 
 Venda* insere_struct_array(Venda* array, const Venda elem) 
 {
@@ -122,14 +122,15 @@ int isBetweenNum(int n, int l, int r)
 }
 
 // Ler produtos e guardar numa estrutura CatProd
-void lerProdutos(CatProd cp)
+int lerProdutos(CatProd cp, char* filename)
 {
+    int count = 0;
     FILE *fp;
     char* line = malloc(sizeof(char*));
 
     int val = 0;
 
-    if((fp = fopen("Produtos.txt", "r")) != NULL)
+    if((fp = fopen(filename, "r")) != NULL)
     {
         while (fgets(line,7,fp) != NULL)
         {
@@ -140,12 +141,14 @@ void lerProdutos(CatProd cp)
             if (val){
                 catProdInsert(cp, strdup(line), prod);
                 free(prod);
+                count++;
             }
 
         }
     }
 
     fclose(fp);
+    return count;
 }
 
 char** duplicate_removal(char** array, int* old_size)
@@ -173,14 +176,15 @@ char** duplicate_removal(char** array, int* old_size)
 }
 
 // Ler e validar clientes
-void lerClientes(CatCli cc)
+int lerClientes(CatCli cc, char* filename)
 {
+    int count = 0;
     FILE *fp;
     char* line = malloc(sizeof(char*));
 
     int val = 0;
 
-    if((fp = fopen("Clientes.txt", "r")) != NULL)
+    if((fp = fopen(filename, "r")) != NULL)
     {
         while (fgets(line,6,fp) != NULL)
         {   
@@ -190,13 +194,15 @@ void lerClientes(CatCli cc)
             /* Store no array */
             if (val)            
                 catCliInsert(cc, strdup(line), cli);
-                free(cli);            
+                free(cli);   
+                count++;         
         }
     }
     else
         fprintf(stderr, "%s\n", ERROR);
 
     fclose(fp);
+    return count;
 }
 
 void ficheiroProdCliValidos(char** array, char* nome)
@@ -315,6 +321,15 @@ int compareFunction(const void* a, const void* b)
 /* Main */
 int main(int argc, char const *argv[])
 {
+    char prod_filename[BUFFER];
+    char cli_filename[BUFFER];
+    char venda_filename[BUFFER];
+    int prod_count, cli_count, vendas_count;
+
+    prod_count = cli_count = vendas_count = 0;
+    strcpy(prod_filename, "Produtos.txt");
+    strcpy(cli_filename, "Clientes.txt");
+    strcpy(venda_filename, "Vendas_1M.txt");
     /* Começar os arrays
     char** arrayProd = (char**) malloc(sizeof(char*));
     arrayProd[0] = NULL;
@@ -332,8 +347,8 @@ int main(int argc, char const *argv[])
     /* Ler os ficheiros e validar para arrays */
     //arrayProd = lerProdutos(arrayProd, sizeProdPtr);
     //arrayCli = lerClientes(arrayCli, sizeCliPtr);
-    lerProdutos(cp);
-    lerClientes(cc);
+    prod_count = lerProdutos(cp, prod_filename);
+    cli_count = lerClientes(cc, cli_filename);
 
     catProdToFile(cp, "produtos_validos.txt");
     catCliToFile(cc, "clientes_validos1.txt");
@@ -382,6 +397,52 @@ int main(int argc, char const *argv[])
     filialInsert(f, foo, "1");
     printf("%d\n", filialLookup(f, foo2));
     */
+    int exit_flag = 0;
+    int opcao;
+    while (!exit_flag)
+    {
+        main_menu();
+        scanf("%d", &opcao);
+        getchar();
+        switch (opcao)
+        {
+            case 1:
+                query_um(cp, cc, prod_filename, cli_filename, venda_filename);
+                prod_count = lerProdutos(cp, prod_filename);
+                cli_count = lerClientes(cc, cli_filename);
+                vendas_count = 0; /* Vai ser alterado com leitura de vendas */
+                um_present_result(prod_filename, cli_filename, venda_filename, prod_count, cli_count, vendas_count);
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
+                break;
+            case 7:
+                break;
+            case 8:
+                break;
+            case 9:
+                break;
+            case 10:
+                break;
+            case 11:
+                break;
+            case 12:
+                break;
+            case 0:
+                exit_flag = 1;
+                break;
+            default:
+                opcao_invalida();
+                break;
+        }
+    } 
 
     /* Libertar a memória 
     int i;
