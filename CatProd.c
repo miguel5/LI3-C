@@ -61,6 +61,11 @@ void catProdToFile(CatProd cp, char* nome){
     fclose(fp);
 }
 
+void freeProd(CatProd prod_list)
+{
+    g_tree_destroy(prod_list -> t);
+}
+
 /*
 gboolean iter_all(gpointer key, gpointer value, gpointer data) {
  printf("%s, %s\n", vendaToString(key), value);
