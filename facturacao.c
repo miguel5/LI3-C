@@ -5,34 +5,16 @@
 #include <gmodule.h>
 #include "venda.h"
 
+
 /*
 * Struct de uma facturacao
-* Array de 11 elementos (meses) cada um com uma arvore de produtos nas chaves e os values são arvores de vendas ou algo parecido
+* Array de 11 elementos (meses) cada um com uma arvore com produtos nas chaves e informação importante na informação. também tem um array de produtos não vendidos
 */
-typedef struct factImp
-{
-	int vendasN1, vendasN2, vendasN3, vendasP1, vendasP2, vendasP3;
-	float factN1, factP1, factN2, factP2, factN3, factP3;
-} FactImp;
-
-typedef struct prodTree
-{
-	GTree* prodtree;
-	float fact;
-	int v;
-} ProdTree;
-
 struct facturacao
 {
 	ProdTree trees[12];
 	GArray *prodNV;
 };
-
-typedef struct prodvend
-{
-	char* prod;
-	int vendas;
-} *ProdVenda;
 
 int cmp(char* a, char* b)
 {
@@ -45,7 +27,7 @@ int cmp2(int a, int b)
 	return (a>b);
 }
 
-Facturacao criaFacturacao()
+Facturacao newFacturacao()
 {
 	Facturacao f = (Facturacao) malloc(sizeof(struct facturacao));
 	int i = 0;
@@ -63,7 +45,6 @@ Facturacao criaFacturacao()
 	return f;
 }
 
-/* Delete Later */
 FactImp* criaFactImp()
 {
 	FactImp *f = (FactImp *) malloc(sizeof(FactImp));
@@ -71,8 +52,6 @@ FactImp* criaFactImp()
 	return f;
 }
 
-
-//FactImp insereNovaVenda(FactImp f, Venda v)
 void insereNovaVenda(FactImp *f, double prec, int fil, char* tc, int q)
 {
 	double p = prec;
@@ -104,7 +83,7 @@ FactImp* getFactImp(Facturacao f, int mes, char* prod)
 	return fa;
 }
 
-void insereVendaV(Facturacao f, Venda v)
+void FacturacaoInsert(Facturacao f, Venda v)
 {
 	int mes = getMes(v)-1;
 	double p = getPreco(v)*getQuantidade(v);
@@ -130,13 +109,26 @@ void insereVendaV(Facturacao f, Venda v)
 	}
 }
 
-/* Ler de vendas */
-
-/* Ver produtos */
-
-int sortNV(char* prod1, char* prod2)
+int isProdThere(Facturacao f, char* prod)
 {
-	return strcmp(prod1, prod2);
+	int i = 0;
+	while (i < 12)
+	{
+		if (g_tree_lookup(f->trees[i].prodtree, prod) != NULL)
+		{
+			return 1;
+		}
+		i++;
+	}
+
+	return 0;
+}
+
+int sortNV(gpointer prod1, gpointer prod2)
+{
+	char* p1 = (char*) prod1;
+	char* p2 = (char*) prod2;
+	return strcmp(p1, p2);
 }
 
 void insereProdNV(Facturacao f, char* prod)
@@ -149,14 +141,34 @@ void sortProdNV(Facturacao f)
 	g_array_sort(f->prodNV, (GCompareFunc) sortNV);
 }
 
+int traverseFree(gpointer key, gpointer value, gpointer data)
+{
+	free(key);
+	free(value);
+
+	return TRUE;
+}
+
 void freeFacturacao(Facturacao f)
 {
+	/* free trees and such */
 	int i = 0;
 	while (i < 12)
 	{
-		free(f->trees);
+		g_tree_foreach(f->trees[i].prodtree, traverseFree, 0);
 		i++;
 	}
+	free(f->trees);
+	/* free array */
+	ProdVenda pv = malloc(sizeof(ProdVenda));
+	int l = f->prodNV->len;
+	while (i < l)
+	{
+		pv = g_array_index(f->prodNV, ProdVenda, i);
+		free(pv);
+		i++;
+	}
+	free(f->prodNV);
 
 	free(f);
 }
@@ -203,7 +215,7 @@ float totalFact(Facturacao f, int bef, int aft)
 	return tot;
 }
 
-void mesProd(Facturacao f, int mes, char* prod, int glob)
+char* mesProd(Facturacao f, int mes, char* prod, int glob)
 {
 	/*glob 1 ut quer global, 0 quer por filial */
 	mes = mes-1;
@@ -212,6 +224,10 @@ void mesProd(Facturacao f, int mes, char* prod, int glob)
 	int totalVP = 0;
 	float totalFN = 0;
 	float totalFP = 0;
+
+	char result[1000];
+	char* resultfinal;
+
 	if (g_tree_lookup(f->trees[mes].prodtree, prod) != NULL)
 	{
 		printf("Mês %d Produto %s\n", mes, prod);
@@ -224,24 +240,22 @@ void mesProd(Facturacao f, int mes, char* prod, int glob)
 			totalVP = fa->vendasP1 + fa->vendasP2 + fa->vendasP3;
 			totalFN = fa->factN1 + fa->factN2 + fa->factN3;
 			totalFP = fa->factP1 + fa->factP2 + fa->factP3;
-			printf("Global:\n");
-			printf("Total Vendas N: %d\nTotal Vendas P: %d\n", totalVN, totalVP);
-			printf("Total Facturacao N: %f\nTotal Facturacao F: %f\n", totalFN, totalFP);
+			sprintf(result, "Global:\nTotal Vendas N: %d\nTotal Vendas P: %d\nTotal Facturacao N: %f\nTotal Facturacao F: %f\n", totalVN, totalVP, totalFN, totalFP);
 		}
 		else
 		{
-			/* Filial a Filial */
-			printf("Filial 1:\n");
-			printf("Total Vendas N: %d\nTotal Vendas P: %d\n", fa->vendasN1, fa->vendasP1);
-			printf("Total Facturacao N: %f\nTotal Facturacao F: %f\n", fa->factN1, fa->factP1);
-			printf("Filial 2:\n");
-			printf("Total Vendas N: %d\nTotal Vendas P: %d\n", fa->vendasN2, fa->vendasP2);
-			printf("Total Facturacao N: %f\nTotal Facturacao F: %f\n", fa->factN2, fa->factP2);
-			printf("Filial 3:\n");
-			printf("Total Vendas N: %d\nTotal Vendas P: %d\n", fa->vendasN3, fa->vendasP3);
-			printf("Total Facturacao N: %f\nTotal Facturacao F: %f\n", fa->factN3, fa->factP3);
+			sprintf(result, "Filial 1:\nTotal Vendas N: %d\nTotal Vendas P: %d\nTotal Facturacao N: %f\nTotal Facturacao F: %f\nFilial 2:\nTotal Vendas N: %d\nTotal Vendas P: %d\nTotal Facturacao N: %f\nTotal Facturacao F: %f\nFilial 3:\nTotal Vendas N: %d\nTotal Vendas P: %d\nTotal Facturacao N: %f\nTotal Facturacao F: %f\n", fa->vendasN1, fa->vendasP1, fa->factN1, fa->factP1, fa->vendasN2, fa->vendasP2, fa->factN2, fa->factP2, fa->vendasN3, fa->vendasP3, fa->factN3, fa->factP3);
 		}
 	}
+	else
+	{
+		printf("Produto não teve compras\n");
+		sprintf(result, "Produto não teve compras\n");
+	}
+
+	resultfinal = strdup(result);
+	//resultfinal = strdup(res);
+	return resultfinal;
 
 }
 
@@ -265,6 +279,9 @@ gboolean traverse(gpointer key, gpointer value, gpointer data)
 		{
 			/* Add to array */
 			pvt->vendas += tot;
+			pvt->vendasfil1 = fa->vendasN1 + fa->vendasP1;
+			pvt->vendasfil2 = fa->vendasN2 + fa->vendasP2;
+			pvt->vendasfil3 = fa->vendasN3 + fa->vendasP3;
 			notfound = 0;
 		}
 		i++;
@@ -276,6 +293,9 @@ gboolean traverse(gpointer key, gpointer value, gpointer data)
 		ProdVenda pv = malloc(sizeof(ProdVenda));
 		pv->prod = produto;
 		pv->vendas = tot;
+		pv->vendasfil1 = fa->vendasN1 + fa->vendasP1;
+		pv->vendasfil2 = fa->vendasN2 + fa->vendasP2;
+		pv->vendasfil3 = fa->vendasN3 + fa->vendasP3;
 		g_array_append_val(array, pv);
 	}
 
@@ -315,11 +335,10 @@ void nMaisVendidos(Facturacao f, int n)
 	while (n > 0)
 	{
 		pv = g_array_index(array, ProdVenda, i);
-		printf("%s com %d Vendas\n", pv->prod, pv->vendas);
+		printf("%s com:\n%d vendas na filial 1\n%d vendas na filial 2\n%d vendas na filial 3\n", pv->prod, pv->vendasfil1, pv->vendasfil2, pv->vendasfil3);
 		i++;
 		n--;
 	}
-
 }
 
 void quantosNV(Facturacao f)
@@ -343,47 +362,3 @@ void listaNV(Facturacao f)
 		i++;
 	}
 }
-
-int main(int argc, char const *argv[])
-{
-
-	Facturacao f = criaFacturacao();
-
-	char* prod = "AB1234";
-	char* prod2 = "AC1123";
-	char* prod3 = "DF2232";
-	char* prod4 = "CD1234";
-
-	//                  TC    CL       PR      Prc Qtd Mes Fil
-	Venda v = novaVenda("N", "A1234", "AB1234", 27, 1, 2, 1);
-	insereVendaV(f, v);
-	Venda v1 = novaVenda("N", "B2343", "AC3433", 27, 1, 2, 1);
-	insereVendaV(f, v1);
-	Venda v2 = novaVenda("P", "A1234", "BA1234", 13, 3, 5, 2);
-	insereVendaV(f, v2);
-	Venda v3 = novaVenda("N", "A1334", "CD1234", 1, 2, 5, 3);
-	insereVendaV(f, v3);
-	Venda v4 = novaVenda("P", "A1244", "CD1234", 13, 3, 5, 1);
-	insereVendaV(f, v4);
-
-	printf("Total Vendas:%d\nTotal Fact:%f\n", totalVendas(f, 1, 12), totalFact(f, 1, 12));
-	
-	mesProd(f, 5, prod4, 0);
-
-	insereProdNV(f, prod3);
-	insereProdNV(f, prod);
-	insereProdNV(f, prod3);
-	insereProdNV(f, prod2);
-	insereProdNV(f, prod);
-
-	quantosNV(f);
-	
-	listaNV(f);
-
-	nMaisVendidos(f, 4);
-
-
-	return 0;
-}
-
-

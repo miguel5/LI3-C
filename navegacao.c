@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
+
+#include "produto.h"
 
 int um_first_question() 
 {
@@ -36,6 +39,68 @@ void um_present_result(char* prod_filename, char* cli_filename, char* venda_file
     printf("%s\t%d\n", prod_filename, prod_validos);
     printf("%s\t%d\n", cli_filename, cli_validos);
     printf("%s\t%d\n", venda_filename, vendas_validos);
+}
+
+void tres_question(int* mes, char ** produto, int* glob)
+{
+    //char* prod;
+    char prod[8];
+    printf("Instroduza o mês\n");
+    scanf("%d", mes);
+    while (*mes < 0 || *mes > 12)
+    {
+        printf("Mês impossível\n");
+        printf("Instroduza o mês\n");
+        scanf("%d", mes);
+    }
+    printf("Instroduza Produto\n");
+    scanf("%s", prod);
+    while (validaProduto(criaProd(prod)) == 0)
+    {
+        printf("Produto Inválido\n");
+        printf("Instroduza Produto\n");
+        scanf("%s", prod);
+    }
+    *produto = prod;
+    printf("1-resultado global / 0-resultado filial a filial\n");
+    scanf("%d", glob);
+    while (*glob < 0 || *glob > 1)
+    {
+        printf("Inválido\n");
+        printf("1-resultado global / 0-resultado filial a filial\n");
+        scanf("%d", glob);
+    }
+}
+
+void tres_present_result(char* result)
+{
+    printf("%s\n", result);
+}
+
+void oito_question(int* mesbef, int* mesaft)
+{
+    printf("Instroduza o primeiro mês\n");
+    scanf("%d", mesbef);
+    while (*mesbef < 0 || *mesbef > 12)
+    {
+        printf("Mês impossível\n");
+        printf("Instroduza o primeiro mês\n");
+        scanf("%d", mesbef);
+    }
+    printf("Instroduza o segundo mês\n");
+    scanf("%d", mesaft);
+    while (*mesaft < 0 || *mesaft > 12)
+    {
+        printf("Mês impossível\n");
+        printf("Instroduza o segundo mês\n");
+        scanf("%d", mesaft);
+    }
+}
+
+void onze_question(int* n)
+{
+    printf("Quantos produtos mais vendidos?\n");
+    scanf("%d", n);
 }
 
 void main_menu()

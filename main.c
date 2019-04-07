@@ -7,6 +7,9 @@
 #include "produto.h"
 #include "cliente.h"
 #include "filial.h"
+#include "facturacao.h"
+#include "navegacao.h"
+#include "queries.h"
 
 #define CAMPOSVENDA 7
 #define ERROR "Erro ao abrir ficheiro!"
@@ -226,7 +229,7 @@ void ficheiroProdCliValidos(char** array, char* nome)
     fclose(fp);
 }
 
-void lerVendas(Filial vendasTree, CatProd cp, CatCli cc)
+void lerVendas(Filial vendasTree, CatProd cp, CatCli cc, Facturacao fact)
 {
     FILE *fp;
 
@@ -249,6 +252,7 @@ void lerVendas(Filial vendasTree, CatProd cp, CatCli cc)
             // Store na GTree
             if (val){
                 filialInsert(vendasTree, venda, "1");
+                FacturacaoInsert(fact, venda);
                 validCount++;
                 printf("%s\n", vendaToString(venda));
                 printf("Vendas válidas: %d\n", validCount);
@@ -318,6 +322,39 @@ int compareFunction(const void* a, const void* b)
     return strcmp(strA, strB);
 }
 
+void porProdNV(Facturacao f, char* name)
+{
+    FILE *fp;
+    char* line = malloc(sizeof(char*));
+
+    int val = 0;
+
+    if((fp = fopen(name, "r")) != NULL)
+    {
+        while (fgets(line,7,fp) != NULL)
+        {
+            Produto prod = criaProd(line);
+
+            val = validaProduto(prod);
+
+            // Store no array
+            if (val)
+            {
+                char* prodt = getProdRef(prod);
+                if (isProdThere(f, prodt) == 0)
+                {
+                    insereProdNV(f, prodt);
+                }
+            }
+
+            free(prod);
+
+        }
+    }
+
+    fclose(fp);
+}
+
 /* Main */
 int main(int argc, char const *argv[])
 {
@@ -383,9 +420,14 @@ int main(int argc, char const *argv[])
     //Venda foo2 = novaVenda("N", "Ze Manel", "welele", 9.99, 20, 8, 3);
     //printf("%s\n", vendaToString(foo));
     //printf("Is equal: %d\n", vendaCmp(foo, foo2));
+    
+    Facturacao fct = newFacturacao();
 
     Filial f = newFilial();
-    lerVendas(f, cp, cc);
+    lerVendas(f, cp, cc, fct);
+
+    porProdNV(fct, "produtos_validos.txt");
+
     //forEach1(f);
     //printf("CatProd nodos: %d\n", catProdNodos(cp));
     //printf("CatCli nodos: %d\n", catCliNodos(cc));
@@ -399,6 +441,10 @@ int main(int argc, char const *argv[])
     */
     int exit_flag = 0;
     int opcao;
+
+    char* res;
+    char nothing[1];
+
     while (!exit_flag)
     {
         main_menu();
@@ -416,23 +462,39 @@ int main(int argc, char const *argv[])
             case 2:
                 break;
             case 3:
-                break;
+            {
+                char* prod; int mes; int glob;
+                tres_question(&mes, &prod, &glob);
+                res = query_tres(fct, mes, prod, glob);
+                tres_present_result(res);
+            } break;
             case 4:
-                break;
+            {
+                query_quatro(fct);
+            } break;
             case 5:
                 break;
             case 6:
+                query_seis(fct);
                 break;
             case 7:
                 break;
             case 8:
-                break;
+            {
+                int bef; int aft;
+                oito_question(&bef, &aft);
+                query_oito(fct, bef, aft);
+            }   break;
             case 9:
                 break;
             case 10:
                 break;
             case 11:
-                break;
+            {
+                int n;
+                onze_question(&n);
+                query_onze(fct,n);
+            }   break;
             case 12:
                 break;
             case 0:
@@ -441,6 +503,12 @@ int main(int argc, char const *argv[])
             default:
                 opcao_invalida();
                 break;
+        }
+        if (opcao != 0)
+        {
+            printf("C - Continue\n");
+            scanf("%s", nothing);
+            getchar();
         }
     } 
 
