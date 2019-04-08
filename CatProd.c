@@ -1,4 +1,3 @@
-#include <gmodule.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -61,11 +60,44 @@ void catProdToFile(CatProd cp, char* nome){
     fclose(fp);
 }
 
-void freeProd(CatProd prod_list)
+gboolean func_travessia_prod(gpointer key, gpointer value, gpointer data)
 {
-    g_tree_destroy(prod_list -> t);
+    GPtrArray *remove_list = data;
+    g_ptr_array_add(remove_list, key);
+    return FALSE;
 }
 
+/* Libertar memória do catálogo de produtos */
+void freeProdTree(CatProd cp)
+{
+    int size = g_tree_nnodes(cp -> t);
+    GPtrArray *remove_list = g_ptr_array_sized_new(size);
+    g_tree_foreach(cp -> t, (GTraverseFunc)func_travessia_prod, remove_list);
+    for (int i = 0; i < size; i++)
+        g_free(g_ptr_array_index(remove_list, i));
+    g_ptr_array_free(remove_list, TRUE);
+    g_tree_destroy(cp -> t);
+}
+
+gboolean compareLetter(gpointer key, gpointer value, gpointer data)
+{
+    char letra = *((char*) data);
+    char* chave = strdup((char*) key);
+    if (letra == chave[0])
+    {
+        /*
+        g_ptr_array_add(array, chave);
+        */
+        printf("%s\n", (char*) key);
+    }
+    return FALSE;
+}
+
+/* Função de travessia para determinar produtos começados por uma dada letra */
+void setListaLetra(CatProd prod_list, char* letra)
+{
+    g_tree_foreach(prod_list -> t, (GTraverseFunc)compareLetter, letra);   
+}
 /*
 gboolean iter_all(gpointer key, gpointer value, gpointer data) {
  printf("%s, %s\n", vendaToString(key), value);
