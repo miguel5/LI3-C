@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "produto.h"
+#include "navegacao.h"
 
 /* Escolha do utilizador para primeira query */
 int um_first_question() 
