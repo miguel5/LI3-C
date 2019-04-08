@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #include <string.h>
-
+#include "queries.h"
 #include "CatProd.h"
 #include "CatCli.h"
 #include "facturacao.h"
@@ -16,30 +16,30 @@ struct facturacao
     GArray *prodNV;
 };
 
-/* Recebe apontador para sistema de gestão de vendas da main */
-void query_um(CatProd prod_list, CatCli cli_list, char* prod_filename, char* cli_filename, char* venda_filename) /* Vai ser alterado devido a dependências */
+/* Reinicialização de estruturas (libertação de memória) */
+void query_um(CatProd prod_list, CatCli cli_list, Filial f, Facturacao fct, char* prod_filename, char* cli_filename, char* venda_filename) /* Vai ser alterado devido a dependências */
 {    
-    /* Funções para determinar se o sistema atual contém dados. Se existirem, têm de ser apagados */
-    freeProd(prod_list);
-    freeCli(cli_list);
-    /*
-    freeFaturacao(faturacao);
-    for (int i = 0; i < 3; i++)    
-            freeFilial(filial[i]);
-    */
-
-    prod_list = newCatProd();
-    cli_list = newCatCli();
-
+    CatProd temp_prod_list = prod_list;
+    CatCli temp_cli_list = cli_list;
+    Facturacao temp_fct = fct;
+    Filial temp_f = f;
+    
+    freeProdTree(temp_prod_list);
+    freeCliTree(temp_cli_list);
+    freeFacturacao(temp_fct);
+    freeFilial(temp_f);
+  
     /* Receber do utilizador a proveniência da informação: nome dos ficheiros ou ficheiros por omissão */
     if (um_first_question()) /* Retorna 1 ou 0 */        
         um_second_question(prod_filename, cli_filename, venda_filename);
+}
 
-    /*
-    fillFaturacao(full_data -> faturacao);
-    for (i = 0; i < 3; i++)
-        fillFilial(full_data -> filial[3]);
-    */
+/* Produtos começados por uma dada letra */
+void query_dois(CatProd prod_list)
+{
+    char letra;
+    dois_pergunta(&letra);
+    setListaLetra(prod_list, &letra);
 }
 
 char* query_tres(Facturacao f, int mes, char* prod, int glob)
