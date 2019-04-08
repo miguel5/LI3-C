@@ -1,7 +1,12 @@
 #ifndef QUERIES_H
 #define QUERIES_H
 
-void query_um(CatProd, CatCli, char*, char*, char*);
+#include "facturacao.h"
+#include "filial.h"
+
+void query_um(CatProd, CatCli, Filial, Facturacao, char*, char*, char*);
+
+void query_dois(CatProd);
 
 /* Query três */
 char* query_tres(Facturacao f, int mes, char* prod, int glob);
