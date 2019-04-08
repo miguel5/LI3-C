@@ -40,6 +40,25 @@ int filialLookup(Filial f, Venda key){
 		return 0;
 }
 
+gboolean func_travessia_filial(gpointer key, gpointer value, gpointer data)
+{
+    GPtrArray *remove_list = data;
+    g_ptr_array_add(remove_list, key);
+    return FALSE;
+}
+
+/* Libertar memória associada às filiais */
+void freeFilial(Filial f)
+{
+    int size = g_tree_nnodes(f -> t);
+    GPtrArray *remove_list = g_ptr_array_sized_new(size);
+    g_tree_foreach(f -> t, (GTraverseFunc)func_travessia_filial, remove_list);
+    for (int i = 0; i < size; i++)
+        g_free(g_ptr_array_index(remove_list, i));
+    g_ptr_array_free(remove_list, TRUE);
+    g_tree_destroy(f -> t);
+}
+
 /*
 gboolean iter_all(gpointer key, gpointer value, gpointer data) {
  printf("%s, %s\n", vendaToString(key), value);
