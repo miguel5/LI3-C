@@ -1,6 +1,8 @@
 #ifndef CATPROD_H
 #define CATPROD_H
 
+#include <gmodule.h>
+
 typedef struct catProd* CatProd;
 
 CatProd newCatProd();
