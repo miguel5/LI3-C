@@ -61,7 +61,21 @@ void catCliToFile(CatCli cc, char* nome){
     fclose(fp);
 }
 
-void freeCli(CatCli cli_list)
+gboolean func_travessia_cli(gpointer key, gpointer value, gpointer data)
 {
-    g_tree_destroy(cli_list -> t);
+    GPtrArray *remove_list = data;
+    g_ptr_array_add(remove_list, key);
+    return FALSE;
+}
+
+/* Libertar memória criada para o catálogo de clientes */
+void freeCliTree(CatCli cc)
+{
+    int size = g_tree_nnodes(cc -> t);
+    GPtrArray *remove_list = g_ptr_array_sized_new(size);
+    g_tree_foreach(cc -> t, (GTraverseFunc)func_travessia_cli, remove_list);
+    for (int i = 0; i < size; i++)
+        g_free(g_ptr_array_index(remove_list, i));
+    g_ptr_array_free(remove_list, TRUE);
+    g_tree_destroy(cc -> t);
 }
