@@ -5,6 +5,7 @@
 
 #include "produto.h"
 
+/* Escolha do utilizador para primeira query */
 int um_first_question() 
 {
     char escolha;
@@ -23,6 +24,7 @@ int um_first_question()
         return 0;
 }
 
+/* Escolha do utilizador para primeira query */
 void um_second_question(char* prod_filename, char* cli_filename, char* venda_filename)
 {
     printf("Introduza nome do ficheiro de produtos\n");
@@ -33,6 +35,7 @@ void um_second_question(char* prod_filename, char* cli_filename, char* venda_fil
     scanf("%s", venda_filename);
 }
 
+/* Apresentar resultado da primeira query */
 void um_present_result(char* prod_filename, char* cli_filename, char* venda_filename, int prod_validos, int cli_validos, int vendas_validos)
 {
     printf("Ficheiro lido\tLinhas validadas\n");
@@ -40,6 +43,13 @@ void um_present_result(char* prod_filename, char* cli_filename, char* venda_file
     printf("%s\t%d\n", cli_filename, cli_validos);
     printf("%s\t%d\n", venda_filename, vendas_validos);
 }
+
+/* Escolha do utilizador para segunda query */
+void dois_pergunta(char* letra)
+{
+    printf("Introduza uma letra maiúscula\n");
+    scanf("%c", letra);
+} 
 
 void tres_question(int* mes, char ** produto, int* glob)
 {
@@ -103,6 +113,7 @@ void onze_question(int* n)
     scanf("%d", n);
 }
 
+/* Menu principal da aplicação */
 void main_menu()
 {
     system("clear");
@@ -122,6 +133,7 @@ void main_menu()
     printf("0 - Terminar o programa\n");
 }
 
+/* Mensagem de erro (menu principal) */
 void opcao_invalida()
 {
     system("clear");
