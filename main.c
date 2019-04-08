@@ -229,7 +229,7 @@ void ficheiroProdCliValidos(char** array, char* nome)
     fclose(fp);
 }
 
-void lerVendas(Filial vendasTree, CatProd cp, CatCli cc, Facturacao fact)
+int lerVendas(Filial vendasTree, CatProd cp, CatCli cc, Facturacao fact)
 {
     FILE *fp;
 
@@ -254,8 +254,9 @@ void lerVendas(Filial vendasTree, CatProd cp, CatCli cc, Facturacao fact)
                 filialInsert(vendasTree, venda, "1");
                 FacturacaoInsert(fact, venda);
                 validCount++;
+                /*
                 printf("%s\n", vendaToString(venda));
-                printf("Vendas válidas: %d\n", validCount);
+                */
                 //free(venda);
             }
         }
@@ -264,6 +265,7 @@ void lerVendas(Filial vendasTree, CatProd cp, CatCli cc, Facturacao fact)
         fprintf(stderr, "%s\n", ERROR);
 
     fclose(fp);
+    return validCount;
 }
 
 /* Criar ficheiro de vendas válidas */
@@ -453,10 +455,11 @@ int main(int argc, char const *argv[])
         switch (opcao)
         {
             case 1:
-                query_um(cp, cc, prod_filename, cli_filename, venda_filename);
+                query_um(cp, cc, f, fct, prod_filename, cli_filename, venda_filename);
                 prod_count = lerProdutos(cp, prod_filename);
                 cli_count = lerClientes(cc, cli_filename);
-                vendas_count = 0; /* Vai ser alterado com leitura de vendas */
+                vendas_count = lerVendas(f, cp, cc, fct); 
+                porProdNV(fct, "produtos_validos.txt");
                 um_present_result(prod_filename, cli_filename, venda_filename, prod_count, cli_count, vendas_count);
                 break;
             case 2:
@@ -511,16 +514,11 @@ int main(int argc, char const *argv[])
             getchar();
         }
     } 
-
-    /* Libertar a memória 
-    int i;
-    for (i = 0; i < (*sizeProdPtr); i++)
-        free(arrayProd[i]);
-    free(arrayProd);
-
-    for (i = 0; i < (*sizeCliPtr); i++)
-        free(arrayCli[i]);
-    free(arrayCli);*/
-
+    
+    freeProdTree(cp);
+    freeCliTree(cc);
+    freeFacturacao(fct);
+    freeFilial(f);
+    
     return 0;
 }
