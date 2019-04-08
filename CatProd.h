@@ -8,6 +8,7 @@ void catProdInsert(CatProd, void*, void*);
 void* catProdLookup(CatProd, char*);
 int catProdNodos(CatProd);
 void catProdToFile(CatProd, char*);
-void freeProd(CatProd);
+void freeProdTree(CatProd);
+void setListaLetra(CatProd, char*);
 
 #endif
