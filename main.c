@@ -456,6 +456,10 @@ int main(int argc, char const *argv[])
         {
             case 1:
                 query_um(cp, cc, f, fct, prod_filename, cli_filename, venda_filename);
+                cp = newCatProd();
+                cc = newCatCli();
+                f = newFilial();
+                fct = newFacturacao();
                 prod_count = lerProdutos(cp, prod_filename);
                 cli_count = lerClientes(cc, cli_filename);
                 vendas_count = lerVendas(f, cp, cc, fct); 
